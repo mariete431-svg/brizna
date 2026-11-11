@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
+Disallow: /marca/
 Sitemap: https://brizna.shop/sitemap.xml
