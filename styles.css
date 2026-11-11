@@ -1,0 +1,111 @@
+/* Brizna · versión sencilla */
+:root{
+  --fondo:#F6F2EC;
+  --tinta:#1E2A4A;
+  --suave:#59627A;
+  --lila:#E4DEF8;
+  --acento:#6F5FD0;
+  --linea:#D8D2E4;
+  --radio:8px;
+  --titulos:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif;
+  --texto:"Figtree","Avenir Next",system-ui,sans-serif;
+  --firma:"Great Vibes","Snell Roundhand",cursive;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--fondo);color:var(--tinta);font-family:var(--texto);font-size:17px;line-height:1.6;-webkit-text-size-adjust:100%}
+img{display:block;max-width:100%}
+a{color:inherit}
+p{max-width:58ch}
+em{font-style:normal;font-weight:600;border-bottom:1px solid currentColor}
+
+/* Cabecera */
+.cab{text-align:center;padding:40px 20px 24px}
+.logo{font-family:var(--firma);font-size:clamp(3.4rem,10vw,5rem);line-height:1;color:var(--tinta);max-width:none}
+.lema{margin:8px auto 0;color:var(--suave);font-size:.98rem}
+
+/* Intro */
+.intro{max-width:760px;margin:0 auto;padding:24px 20px 40px;text-align:center}
+.intro h1{font-family:var(--titulos);font-weight:500;font-size:clamp(1.7rem,4.6vw,2.6rem);line-height:1.15;text-wrap:balance}
+.intro p{margin:16px auto 0;color:var(--suave)}
+
+/* Productos */
+.productos{max-width:1100px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:40px 24px}
+.prod{display:flex;flex-direction:column}
+.prod-foto{aspect-ratio:4/5;overflow:hidden;border-radius:var(--radio);background:var(--lila)}
+.prod-foto img{width:100%;height:100%;object-fit:cover}
+.prod h3{font-family:var(--titulos);font-weight:500;font-size:1.25rem;line-height:1.2;margin-top:16px}
+.prod .det{color:var(--suave);font-size:.95rem;margin-top:6px;flex:1}
+.prod-pie{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px}
+.precio{font-variant-numeric:tabular-nums}
+.hueco{color:var(--suave);font-size:.85rem}
+.pedir{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;background:var(--acento);color:#fff;text-decoration:none;border-radius:var(--radio);font-weight:600;transition:background .2s var(--ease)}
+.pedir:hover{background:#5A4BB8}
+.agotado{color:var(--suave);font-size:.95rem}
+.nota{max-width:1100px;margin:32px auto 0;padding:0 20px;color:var(--suave);font-size:.9rem}
+
+/* Cómo pedir */
+.pasos{max-width:760px;margin:64px auto 0;padding:48px 20px 56px;background:var(--lila);border-radius:var(--radio)}
+.pasos h2{font-family:var(--titulos);font-weight:500;font-size:clamp(1.6rem,4vw,2.2rem)}
+.pasos ol{list-style:none;margin-top:24px}
+.pasos li{display:grid;grid-template-columns:48px 1fr;gap:16px;padding:16px 0;border-top:1px solid #C9C0EA;align-items:baseline}
+.pasos li span{font-family:var(--titulos);font-size:2rem;line-height:1}
+.pasos p{max-width:none}
+
+/* Pie */
+.pie{text-align:center;padding:56px 20px 48px}
+.logo-pie{font-size:2.6rem}
+.pie p{margin:8px auto 0}
+.pie a{display:inline-block;padding:10px 4px;border-bottom:1px solid var(--tinta);text-decoration:none}
+.peq{color:var(--suave);font-size:.9rem}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  .cab{padding:32px 20px 16px}
+  .intro{padding-bottom:32px}
+  .productos{grid-template-columns:1fr 1fr;gap:32px 14px;padding:0 16px}
+  .prod h3{font-size:1.05rem}
+  .prod .det{font-size:.88rem}
+  .prod-pie{flex-direction:column;align-items:stretch;gap:8px}
+  .precio{text-align:left}
+  .pedir{width:100%;padding:0 12px}
+  .pasos{margin:48px 16px 0;padding:36px 20px 40px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+.envio{margin-top:28px;display:grid;grid-template-columns:140px 1fr;gap:18px;align-items:center}.envio img{width:140px;aspect-ratio:4/5;object-fit:cover;border-radius:var(--radio)}.envio figcaption{color:var(--suave);font-size:.95rem}
+
+/* Portada nueva */
+.hero{background:var(--tinta);color:#F6F2EC;text-align:center;padding:44px 0 36px;border-radius:0 0 28px 28px;overflow:hidden}
+.hero .logo{color:#F6F2EC;font-size:clamp(4rem,14vw,6.5rem)}
+.hero .lema{color:#C9C4E8;font-size:1.1rem;margin:10px auto 0;padding:0 20px}
+.tira{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:32px 20px 8px;scroll-padding:0 20px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tira::-webkit-scrollbar{display:none}
+.tira figure{flex:0 0 66%;max-width:300px;scroll-snap-align:center;position:relative;border-radius:18px;overflow:hidden;aspect-ratio:4/5;background:var(--lila)}
+.tira figure:nth-child(even){margin-top:22px}
+.tira img{width:100%;height:100%;object-fit:cover}
+.tira figcaption{position:absolute;left:10px;bottom:10px;background:rgba(246,242,236,.94);color:var(--tinta);font-size:.85rem;font-weight:600;padding:5px 12px;border-radius:99px}
+.ver{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 34px;margin-top:28px;background:#E4DEF8;color:var(--tinta);font-weight:600;text-decoration:none;border-radius:99px;font-size:1.05rem}
+.pilares{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;margin-top:26px;padding:0 20px;color:#C9C4E8;font-size:.92rem}
+.pilares li::before{content:"\2726";margin-right:8px;color:#B6A8FF}
+.intro{padding-top:48px}
+@media (min-width:900px){.tira{justify-content:center;overflow:visible;padding-top:40px}.tira figure{flex:0 0 15%;max-width:none}}
+
+/* Portada con foto grande */
+.hero{background-size:cover;background-position:center;padding:0;border-radius:0 0 28px 28px;min-height:88svh;display:flex;align-items:center}
+.hero-in{width:100%;max-width:780px;margin:0 auto;padding:56px 22px 64px}
+.hero h1{font-family:var(--titulos);font-weight:500;font-size:clamp(2rem,7vw,3.4rem);line-height:1.1;margin-top:14px;text-wrap:balance;color:#fff}
+.hero .sub{margin:18px auto 0;color:#E6E2F6;font-size:1.08rem}
+.botones{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:30px}
+.botones .ver{margin-top:0}
+.ver2{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.75)}
+.pilares2{max-width:1000px;margin:-34px auto 0;padding:0 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:relative}
+.pilares2 div{background:#fff;border-radius:14px;padding:18px 14px;text-align:center;box-shadow:0 8px 24px rgba(30,42,74,.12)}
+.pilares2 b{display:block;font-family:var(--titulos);font-weight:500;font-size:1.02rem}
+.pilares2 span{display:block;color:var(--suave);font-size:.85rem;margin-top:4px;line-height:1.35}
+.intro h2{font-family:var(--titulos);font-weight:500;font-size:clamp(1.8rem,5vw,2.6rem)}
+.tipo{max-width:1100px;margin:48px auto 20px;padding:0 20px;font-family:var(--titulos);font-weight:500;font-size:1.6rem;display:flex;align-items:center;gap:14px}
+.tipo::after{content:"";flex:1;height:1px;background:var(--linea)}
+@media (max-width:640px){.hero{min-height:84svh}.pilares2{grid-template-columns:1fr;margin-top:-26px}.pilares2 div{padding:14px}.tipo{padding:0 16px;margin-top:40px}}
+.hero h1,.hero .sub,.hero .logo{text-shadow:0 2px 14px rgba(15,22,48,.55)}
+@media (max-width:640px){.pilares2{grid-template-columns:repeat(3,1fr);gap:8px;margin-top:-22px}.pilares2 div{padding:12px 6px}.pilares2 b{font-size:.82rem}.pilares2 span{display:none}}
