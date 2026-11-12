@@ -117,6 +117,57 @@
   var SB = "https://uaojfcqpdngoqpjrmttx.supabase.co", KEY = "sb_publishable_ZB2XOPmn8io8Dd92r2JzLw_QlrTTI5q";
   var cab = { apikey: KEY, Authorization: "Bearer " + KEY, "Content-Type": "application/json" };
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  /* Contenido que Adriana gestiona desde su panel (productos, aviso, enlaces, feed) */
+  function wapedir(n) { return wa("Hola Adriana, me gustaría pedir: " + n + ". ¿Está disponible?"); }
+  function foto(f, pos, alt) { return f ? '<img src="' + esc(f) + '" alt="' + esc(alt) + '" loading="lazy" style="object-position:' + esc(pos || "50% 50%") + '">' : ""; }
+  function boton(p, extra) { return p.disponible === false ? '<span class="agotado">Agotado</span>' : '<a class="pedir' + (extra || "") + '" aria-label="Pedir ' + esc(p.nombre) + '" href="' + wapedir(p.nombre) + '">Pedir</a>'; }
+  function precio(p) { return p.precio ? '<span class="precio">' + esc(p.precio) + ' €</span>' : ""; }
+  function tarjeta(p) { return '<article class="prod in"><div class="prod-foto">' + foto(p.foto, p.posicion, p.nombre) + '</div><h4>' + esc(p.nombre) + '</h4><p class="det">' + esc(p.detalle) + '</p><div class="prod-pie">' + precio(p) + boton(p) + '</div></article>'; }
+  function destacado(p) {
+    var f2 = p.foto2 ? '<div class="dest-foto dest-foto2">' + foto(p.foto2, "50% 50%", p.nombre + " (etiqueta)") + '</div>' : "";
+    return '<article class="dest in' + (p.foto2 ? " dest-doble" : "") + '"><div class="dest-fotos"><div class="dest-foto">' + foto(p.foto, p.posicion, p.nombre) + '</div>' + f2 + '</div><div class="dest-txt"><span class="nueva">Novedad</span><h3>' + esc(p.nombre) + '</h3><p>' + esc(p.detalle) + '</p><div class="dest-pie">' + precio(p) + boton(p, " pedir-grande") + '</div></div></article>';
+  }
+  var IDS = { "Jabones": "jabones", "Bálsamos": "balsamos", "Sales de baño": "sales" };
+  function idDe(t) { return IDS[t] || "t-" + t.toLowerCase().replace(/[^a-z0-9]+/g, "-"); }
+  function pintarProductos(lista) {
+    if (!lista || !lista.length) return;
+    var nov = lista.filter(function (p) { return p.novedad; }), resto = lista.filter(function (p) { return !p.novedad; });
+    var nb = $("#novedades"); if (nb) nb.innerHTML = nov.map(destacado).join("");
+    var orden = ["Jabones", "Bálsamos", "Sales de baño"], g = {};
+    resto.forEach(function (p) { (g[p.tipo] = g[p.tipo] || []).push(p); if (orden.indexOf(p.tipo) < 0) orden.push(p.tipo); });
+    var cat = $(".catalogo");
+    if (cat) cat.innerHTML = orden.filter(function (k) { return g[k]; }).map(function (k) {
+      return '<h3 class="tipo" id="' + idDe(k) + '">' + esc(k) + '</h3><section class="productos" aria-label="' + esc(k) + '">' + g[k].map(tarjeta).join("") + '</section>';
+    }).join("");
+    var chips = $(".chips");
+    if (chips) chips.innerHTML = (nov.length ? '<a href="#novedades">Novedades</a>' : "") + orden.filter(function (k) { return g[k]; }).map(function (k) { return '<a href="#' + idDe(k) + '">' + esc(k) + '</a>'; }).join("");
+    var sel = $('#form-resena select[name="producto"]');
+    if (sel) sel.innerHTML = "<option>Varios productos</option>" + lista.map(function (p) { return "<option>" + esc(p.nombre) + "</option>"; }).join("");
+  }
+  function pintarAjustes(a) {
+    if (!a) return;
+    var av = $("#aviso");
+    if (av && a.aviso_activo && a.aviso_texto) { av.textContent = a.aviso_texto; av.hidden = false; }
+    var gv = $("#google-vivo");
+    if (gv && !$(".google") && (a.google_resena || a.google_perfil)) {
+      gv.innerHTML = '<div class="google"><div><b>También en Google</b><p>Si ya nos conoces, ayúdanos con una reseña. Así nos encuentra más gente.</p></div><div class="google-btn">' + (a.google_resena ? '<a class="ver" href="' + esc(a.google_resena) + '" rel="noopener" target="_blank">Escribir reseña en Google</a>' : "") + (a.google_perfil ? '<a class="ver2" href="' + esc(a.google_perfil) + '" rel="noopener" target="_blank">Ver la ficha de Brizna</a>' : "") + '</div></div>';
+    }
+    var fw = $(".feed-wrap");
+    if (fw && a.instagram) { window.__ig = a.instagram; if (!$(".feed-link", fw)) fw.insertAdjacentHTML("beforeend", '<p class="feed-link"><a class="ver2 oscuro" href="' + esc(a.instagram) + '" rel="noopener" target="_blank">Seguir en Instagram</a></p>'); }
+  }
+  function pintarFeed(lista) {
+    var fw = $(".feed-wrap"); if (!fw || !lista || !lista.length) return;
+    var ig = window.__ig;
+    fw.innerHTML = '<div class="feed">' + lista.slice(0, 6).map(function (p) {
+      var cuerpo = '<img src="' + esc(p.foto) + '" alt="' + esc(p.texto || "Publicación de Brizna") + '" loading="lazy" width="540" height="540">' + (p.texto ? '<span class="feed-txt">' + esc(p.texto) + '</span>' : "");
+      return p.enlace ? '<a class="feed-item in" href="' + esc(p.enlace) + '" rel="noopener" target="_blank">' + cuerpo + '</a>' : '<div class="feed-item in">' + cuerpo + '</div>';
+    }).join("") + '</div>' + (ig ? '<p class="feed-link"><a class="ver2 oscuro" href="' + esc(ig) + '" rel="noopener" target="_blank">Seguir en Instagram</a></p>' : "");
+  }
+  function leer(tabla, q) { return fetch(SB + "/rest/v1/" + tabla + "?" + q, { headers: cab }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); }
+  if (window.fetch) {
+    leer("brizna_ajustes", "select=*&id=eq.1").then(function (r) { pintarAjustes(r && r[0]); }).then(function () { return leer("brizna_feed", "select=*&order=orden.asc,creado.desc&limit=6"); }).then(pintarFeed);
+    leer("brizna_productos", "select=*&order=orden.asc,creado.asc").then(pintarProductos);
+  }
   function pintar(lista) {
     var box = $("#res-vivas"); if (!box || !lista.length) return;
     box.innerHTML = lista.map(function (r) {
