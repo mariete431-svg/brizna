@@ -150,6 +150,7 @@
       <p>Opiniones de quienes ya han probado los productos de Brizna.</p>
     </div>
     <div class="vacio rv"><div class="estrellas" aria-hidden="true">☆☆☆☆☆</div><p><b>Aún no hay reseñas.</b><br>Cuando pruebes un producto de Brizna, cuéntanos qué tal. Tu opinión ayuda a otras personas.</p></div>
+    <div class="resenas-lista" id="res-vivas" hidden></div>
     
     <details class="dejar rv">
       <summary>Dejar mi reseña</summary>
@@ -169,8 +170,9 @@
         </fieldset>
         <label class="campo"><span>Tu opinión</span><textarea name="texto" rows="4" required maxlength="400" placeholder="Cuéntanos qué tal te ha ido"></textarea></label>
         <label class="check"><input type="checkbox" name="ok" required><span>Doy permiso para publicar mi reseña en la web con mi nombre.</span></label>
-        <button class="ver" type="submit">Enviar reseña por WhatsApp</button>
-        <p class="peq">Se abre WhatsApp con tu reseña escrita. Adriana la revisa y la publica.</p>
+        <label class="trampa" aria-hidden="true">No rellenar<input type="text" name="web" tabindex="-1" autocomplete="off"></label>
+        <button class="ver" type="submit">Publicar mi reseña</button>
+        <p class="peq" id="res-msg" role="status" aria-live="polite">Tu reseña aparece en la web al momento. Gracias por contarnos qué tal.</p>
       </form>
     </details>
   </section>
