@@ -113,14 +113,53 @@
     });
   }
 
-  /* Reseña */
+  /* Reseñas: se guardan y se leen en Supabase (sin pasar por WhatsApp) */
+  var SB = "https://uaojfcqpdngoqpjrmttx.supabase.co", KEY = "sb_publishable_ZB2XOPmn8io8Dd92r2JzLw_QlrTTI5q";
+  var cab = { apikey: KEY, Authorization: "Bearer " + KEY, "Content-Type": "application/json" };
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function pintar(lista) {
+    var box = $("#res-vivas"); if (!box || !lista.length) return;
+    box.innerHTML = lista.map(function (r) {
+      var n = Math.max(1, Math.min(5, r.estrellas | 0));
+      return '<figure class="resena"><div class="estrellas" aria-label="' + n + ' de 5 estrellas">' + new Array(n + 1).join("★") + new Array(6 - n).join("☆") + '</div><blockquote>' + esc(r.texto) + '</blockquote><figcaption><b>' + esc(r.nombre) + '</b>' + (r.producto && r.producto !== "Varios productos" ? " · " + esc(r.producto) : "") + '</figcaption></figure>';
+    }).join("");
+    box.hidden = false;
+    var v = document.querySelector("#resenas .vacio"); if (v) v.hidden = true;
+  }
+  function cargar() {
+    if (!window.fetch) return;
+    fetch(SB + "/rest/v1/brizna_resenas?select=nombre,producto,estrellas,texto&order=creada.desc&limit=30", { headers: cab })
+      .then(function (r) { return r.ok ? r.json() : []; }).then(pintar).catch(function () {});
+  }
+  cargar();
   var fres = $("#form-resena");
   if (fres) {
+    var msg = $("#res-msg"), btn = fres.querySelector('button[type="submit"]');
+    var textos = {
+      publicada: "¡Gracias! Tu reseña ya está en la web.",
+      guardada: "¡Gracias por contárnoslo! Adriana lo tendrá muy en cuenta.",
+      enlaces: "Por favor, quita los enlaces o números largos de tu reseña.",
+      lenguaje: "Por favor, escribe tu opinión sin palabras ofensivas.",
+      largo: "Tu opinión debe tener entre 15 y 400 letras.",
+      repetido: "Esa reseña ya está enviada o tiene letras repetidas.",
+      limite: "Has enviado ya varias reseñas hoy. Inténtalo mañana.",
+      nombre: "Pon tu nombre (entre 2 y 40 letras).",
+      datos: "Revisa los datos e inténtalo otra vez."
+    };
     fres.addEventListener("submit", function (e) {
       e.preventDefault();
       var f = fres.elements, n = parseInt(fres.querySelector('input[name="estrellas"]:checked').value, 10);
-      var estrellas = new Array(n + 1).join("★") + new Array(6 - n).join("☆");
-      window.location.href = wa("Reseña para la web de Brizna\nProducto: " + f.producto.value + "\nValoración: " + estrellas + " (" + n + "/5)\nOpinión: " + f.texto.value.trim() + "\nNombre: " + f.nombre.value.trim() + "\nDoy permiso para publicarla en la web.");
+      btn.disabled = true; msg.textContent = "Enviando…";
+      fetch(SB + "/rest/v1/rpc/enviar_resena_brizna", {
+        method: "POST", headers: cab,
+        body: JSON.stringify({ p_nombre: f.nombre.value, p_producto: f.producto.value, p_estrellas: n, p_texto: f.texto.value, p_web: f.web.value })
+      }).then(function (r) { return r.ok ? r.json() : "error"; }).then(function (res) {
+        if (res === "ok" || res === "publicada" || res === "guardada") {
+          msg.textContent = textos[res === "ok" ? "guardada" : res];
+          fres.reset(); if (res === "publicada") { cargar(); }
+        } else { msg.textContent = textos[res] || "No se ha podido enviar. Inténtalo en un rato."; }
+        setTimeout(function () { btn.disabled = false; }, 3000);
+      }).catch(function () { msg.textContent = "No se ha podido enviar. Inténtalo en un rato."; btn.disabled = false; });
     });
   }
 })();
