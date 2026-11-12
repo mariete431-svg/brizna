@@ -360,3 +360,5 @@ a.feed-item:hover img{transform:scale(1.05)}
 }
 @media (max-width:640px){@supports not (aspect-ratio:1/1){.feed-item{padding-top:100%}}}
 @media print{.nav,.hero-bg,.menu,.gal-ctrl{display:none}.hero{min-height:0;color:#000;background:none}.hero h1,.hero .sub{color:#000;text-shadow:none}}
+
+.trampa{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
