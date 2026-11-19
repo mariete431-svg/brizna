@@ -143,6 +143,7 @@
     if (chips) chips.innerHTML = (nov.length ? '<a href="#novedades">Novedades</a>' : "") + orden.filter(function (k) { return g[k]; }).map(function (k) { return '<a href="#' + idDe(k) + '">' + esc(k) + '</a>'; }).join("");
     var sel = $('#form-resena select[name="producto"]');
     if (sel) sel.innerHTML = "<option>Varios productos</option>" + lista.map(function (p) { return "<option>" + esc(p.nombre) + "</option>"; }).join("");
+    if (window.__marcarPedir) window.__marcarPedir();
   }
   function pintarAjustes(a) {
     if (!a) return;
@@ -213,4 +214,156 @@
       }).catch(function () { msg.textContent = "No se ha podido enviar. Inténtalo en un rato."; btn.disabled = false; });
     });
   }
+
+
+  /* Cestas: fotos que se deslizan (puntos y flechas) */
+  $$(".carru").forEach(function (c) {
+    var pista = $(".carru-pista", c), puntos = $$(".puntos i", c), aviso = $(".desliza", c);
+    if (!pista || !puntos.length) return;
+    var ir = function (d) { pista.scrollBy({ left: d * pista.clientWidth, behavior: calma ? "auto" : "smooth" }); };
+    var at = $(".atras", c), al = $(".alante", c);
+    if (at) at.addEventListener("click", function () { ir(-1); });
+    if (al) al.addEventListener("click", function () { ir(1); });
+    pista.addEventListener("scroll", function () {
+      var n = Math.round(pista.scrollLeft / pista.clientWidth);
+      puntos.forEach(function (p, i) { p.classList.toggle("on", i === n); });
+      if (aviso && n > 0) aviso.hidden = true;
+    }, { passive: true });
+  });
+
+  /* Copos de nieve en Navidad (decoración: no tapan ni bloquean nada) */
+  if (document.body.getAttribute("data-navidad") === "si" && !calma) {
+    var nieve = document.createElement("div"); nieve.className = "nieve"; nieve.setAttribute("aria-hidden", "true");
+    var cuantos = window.innerWidth < 640 ? 24 : 42, copos = "";
+    for (var c = 0; c < cuantos; c++) {
+      var tam = (3 + Math.random() * 4.5).toFixed(1), dur = (10 + Math.random() * 12).toFixed(1);
+      copos += '<span class="copo" style="left:' + (Math.random() * 100).toFixed(1) + '%;width:' + tam + 'px;height:' + tam + 'px;--t:' + dur + 's;--d:-' + (Math.random() * dur).toFixed(1) + 's;--x:' + Math.round(Math.random() * 70 - 35) + 'px;opacity:' + (0.75 + Math.random() * 0.25).toFixed(2) + '"></span>';
+    }
+    nieve.innerHTML = copos; document.body.appendChild(nieve);
+
+    /* Trineo de Papá Noel: cruza la pantalla a medida que bajas */
+    var trineo = document.createElement("div");
+    trineo.className = "trineo"; trineo.setAttribute("aria-hidden", "true");
+    var reno = function (x) {
+      return '<g transform="translate(' + x + ',0)"><g class="pata-a"><path d="M10 46 L2 58 M14 46 L8 60"/></g><g class="pata-b"><path d="M30 46 L40 57 M34 45 L44 54"/></g>' +
+        '<ellipse cx="22" cy="42" rx="16" ry="7" fill="#B98B62"/><path d="M33 38 Q40 30 42 24 L48 25 Q44 34 37 44 Z" fill="#B98B62"/>' +
+        '<ellipse cx="47" cy="23" rx="7" ry="4.5" fill="#B98B62"/><circle cx="54" cy="23" r="2" fill="#E2483D"/><circle cx="46" cy="21.5" r="1" fill="#241E3B"/>' +
+        '<path d="M43 19 Q40 10 44 5 M42 13 L37 9 M47 19 Q48 11 54 8 M49 13 L53 14" stroke="#E8D3B0" stroke-width="1.8" fill="none" stroke-linecap="round"/></g>';
+    };
+    trineo.innerHTML = '<svg viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">' +
+      '<g class="estela"><circle cx="-8" cy="62" r="2.2"/><circle cx="-24" cy="56" r="1.6"/><circle cx="-40" cy="64" r="1.2"/><circle cx="-56" cy="58" r="1"/></g>' +
+      '<path d="M100 44 Q150 30 168 36 M100 44 Q200 26 248 36" stroke="#E8C66A" stroke-width="1.4" fill="none"/>' +
+      '<g stroke="#B98B62" stroke-width="3" stroke-linecap="round" fill="none">' + reno(130) + reno(210) + '</g>' +
+      '<circle cx="24" cy="36" r="10" fill="#9C6B43"/>' +
+      '<circle cx="46" cy="38" r="11" fill="#E0503F"/><circle cx="48" cy="24" r="6.5" fill="#F2D3B8"/><path d="M42 26 Q48 36 54 26 Z" fill="#fff"/>' +
+      '<path d="M41 22 L55 21 L60 12 Z" fill="#E0503F"/><circle cx="61" cy="11" r="2.6" fill="#fff"/><rect x="40" y="20" width="16" height="3" rx="1.5" fill="#fff"/>' +
+      '<path d="M8 62 Q4 40 20 40 L30 42 Q34 54 50 54 L84 54 Q92 54 94 44 L100 42 Q100 64 84 64 Z" fill="#C8433A"/>' +
+      '<path d="M2 70 H90 Q102 70 104 60" stroke="#E8C66A" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M22 64 V70 M74 64 V70" stroke="#E8C66A" stroke-width="2.5"/>' +
+      '</svg>';
+    document.body.appendChild(trineo);
+    /* Baja solo, despacio y en zigzag, como paseando por una ladera.
+       Al hacer scroll solo coge un poquito de velocidad, sin tirones. */
+    var TRAMOS = 5, SEG_TRAMO = 16;                        /* 5 cruces de lado a lado, 16 s cada uno */
+    var pos = 0, impulso = 0, giro = 1, antes = 0, ultimoY = window.scrollY;
+    window.addEventListener("scroll", function () {
+      var d = Math.abs(window.scrollY - ultimoY); ultimoY = window.scrollY;
+      impulso = Math.min(0.12, impulso + d / (window.innerHeight * 40));
+    }, { passive: true });
+    var paso = function (ahora) {
+      var dt = antes ? Math.min(0.1, (ahora - antes) / 1000) : 0; antes = ahora;
+      impulso *= Math.pow(0.4, dt);                         /* el empujón se va apagando suave */
+      pos += (1 / SEG_TRAMO + impulso) * dt;
+      if (pos >= TRAMOS) pos -= TRAMOS;                     /* al llegar abajo vuelve a empezar arriba */
+      var vw = window.innerWidth, vh = window.innerHeight, ancho = trineo.offsetWidth || 200, alto = trineo.offsetHeight || 70;
+      var n = Math.floor(pos), t = pos - n, suave = t * t * (3 - 2 * t);
+      var izq = 8, der = vw - ancho - 8, alaDerecha = n % 2 === 0;
+      var arriba = vh * 0.1, abajo = vh * 0.62 - alto, tramoAlto = (abajo - arriba) / TRAMOS;
+      var x = alaDerecha ? izq + suave * (der - izq) : der - suave * (der - izq);
+      var y = arriba + (n + suave) * tramoAlto + Math.sin(ahora / 700) * 3;
+      giro += ((alaDerecha ? 1 : -1) - giro) * Math.min(1, dt * 3);
+      var r = (alaDerecha ? 1 : -1) * 3 * Math.sin(Math.PI * t);   /* se inclina un poco a mitad de cada cruce */
+      var visible = pos < 0.15 ? pos / 0.15 : pos > TRAMOS - 0.15 ? (TRAMOS - pos) / 0.15 : 1;
+      trineo.style.opacity = visible.toFixed(2);
+      trineo.style.transform = "translate3d(" + x.toFixed(1) + "px," + y.toFixed(1) + "px,0) rotate(" + r.toFixed(2) + "deg) scaleX(" + giro.toFixed(3) + ")";
+      requestAnimationFrame(paso);
+    };
+    requestAnimationFrame(paso);
+  }
+
+  /* Carrito: se añaden varios productos y se manda todo junto por WhatsApp */
+  var CLAVE = "brizna-pedido", carro = [];
+  try { carro = JSON.parse(localStorage.getItem(CLAVE) || "[]") || []; } catch (e) { carro = []; }
+  var guardar = function () { try { localStorage.setItem(CLAVE, JSON.stringify(carro)); } catch (e) {} };
+  var euros = function (n) { return n.toFixed(2).replace(".", ",") + " €"; };
+  var bolsa = document.createElement("button");
+  bolsa.type = "button"; bolsa.className = "bolsa"; bolsa.hidden = true;
+  bolsa.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg><span>Mi pedido</span><span class="num">0</span>';
+  var fondo = document.createElement("div");
+  fondo.className = "carro-fondo"; fondo.hidden = true;
+  fondo.innerHTML = '<div class="carro" role="dialog" aria-modal="true" aria-labelledby="carro-t"><div class="carro-cab"><h2 id="carro-t">Mi pedido</h2><button type="button" class="carro-x" aria-label="Cerrar">×</button></div><ul class="carro-lista"></ul><div class="carro-pie"><div class="carro-total"><span>Total aproximado</span><span class="carro-suma"></span></div><p class="carro-nota"></p><a class="ver ancho carro-enviar" href="#">Enviar pedido a Adriana</a><button type="button" class="carro-vaciar">Vaciar pedido</button></div></div>';
+  document.body.appendChild(bolsa); document.body.appendChild(fondo);
+  var clista = $(".carro-lista", fondo), suma = $(".carro-suma", fondo), cnota = $(".carro-nota", fondo), enviar = $(".carro-enviar", fondo);
+
+  function mensaje() {
+    var total = 0, consultar = false;
+    var lineas = carro.map(function (it) {
+      if (it.p == null) consultar = true; else total += it.p * it.q;
+      return "- " + it.q + " x " + it.n + (it.p == null ? " (precio a consultar)" : " (" + euros(it.p) + ")");
+    });
+    return "Hola Adriana, me gustaría hacer este pedido:\n" + lineas.join("\n") + (total ? "\nTotal aproximado: " + euros(total) + (consultar ? " + lo que cuesten las cestas" : "") : "") + "\n¿Está todo disponible?";
+  }
+  function pintaCarro() {
+    var n = 0, total = 0, consultar = false;
+    carro.forEach(function (it) { n += it.q; if (it.p == null) consultar = true; else total += it.p * it.q; });
+    bolsa.hidden = n === 0; $(".num", bolsa).textContent = n;
+    bolsa.setAttribute("aria-label", "Ver mi pedido: " + n + (n === 1 ? " producto" : " productos"));
+    clista.innerHTML = carro.length ? carro.map(function (it, i) {
+      return '<li><span class="n">' + esc(it.n) + '</span><span class="p">' + (it.p == null ? "Precio a consultar" : euros(it.p) + " / ud.") + '</span><span class="cant"><button type="button" data-menos="' + i + '" aria-label="Quitar uno de ' + esc(it.n) + '">−</button><span>' + it.q + '</span><button type="button" data-mas="' + i + '" aria-label="Añadir otro de ' + esc(it.n) + '">+</button></span></li>';
+    }).join("") : '<li class="carro-vacio">Tu pedido está vacío.</li>';
+    suma.textContent = euros(total);
+    cnota.textContent = (consultar ? "Las cestas tienen precio a consultar. " : "") + "Adriana te confirma el total y la entrega por WhatsApp.";
+    enviar.href = carro.length ? wa(mensaje()) : "#";
+  }
+  function abrir() { fondo.hidden = false; document.body.classList.add("carro-abierto"); $(".carro-x", fondo).focus(); }
+  function cerrar() { fondo.hidden = true; document.body.classList.remove("carro-abierto"); if (!bolsa.hidden) bolsa.focus(); }
+  bolsa.addEventListener("click", abrir);
+  fondo.addEventListener("click", function (e) {
+    var t = e.target;
+    if (t === fondo || t.closest(".carro-x")) return cerrar();
+    if (t.hasAttribute("data-mas")) { carro[+t.getAttribute("data-mas")].q++; }
+    else if (t.hasAttribute("data-menos")) { var i = +t.getAttribute("data-menos"); if (--carro[i].q < 1) carro.splice(i, 1); }
+    else if (t.closest(".carro-vaciar")) { carro = []; }
+    else return;
+    guardar(); pintaCarro();
+    if (!carro.length) cerrar();
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !fondo.hidden) cerrar(); });
+
+  /* Los botones «Pedir» pasan a ser «Añadir» */
+  window.__marcarPedir = function () {
+    $$("a.pedir").forEach(function (b) {
+      if (b.dataset.carro) return;
+      var art = b.closest("article"), h = art && art.querySelector("h3, h4");
+      b.dataset.carro = "1"; b.textContent = "Añadir";
+      if (h) b.setAttribute("aria-label", "Añadir " + h.textContent.trim() + " a mi pedido");
+    });
+  };
+  window.__marcarPedir();
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("a.pedir");
+    if (!b) return;
+    var art = b.closest("article"), h = art && art.querySelector("h3, h4");
+    if (!h) return;
+    e.preventDefault();
+    var nombre = h.textContent.trim(), pe = art.querySelector(".precio:not(.consultar)");
+    var precio = pe ? parseFloat(pe.textContent.replace(/[^\d,.]/g, "").replace(",", ".")) : null;
+    if (isNaN(precio)) precio = null;
+    var it = carro.filter(function (x) { return x.n === nombre; })[0];
+    if (it) it.q++; else carro.push({ n: nombre, p: precio, q: 1 });
+    guardar(); pintaCarro();
+    b.classList.add("hecho"); b.textContent = "Añadido";
+    setTimeout(function () { b.classList.remove("hecho"); b.textContent = "Añadir"; }, 1400);
+    bolsa.classList.remove("salta"); void bolsa.offsetWidth; bolsa.classList.add("salta");
+  });
+  pintaCarro();
 })();
