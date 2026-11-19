@@ -348,22 +348,75 @@
       if (h) b.setAttribute("aria-label", "Añadir " + h.textContent.trim() + " a mi pedido");
     });
   };
+  /* Aviso abajo (snackbar): «Añadido…» con Deshacer y Ver pedido */
+  var snack = document.createElement("div");
+  snack.className = "snack"; snack.setAttribute("role", "status"); snack.setAttribute("aria-live", "polite");
+  snack.innerHTML = '<span class="snack-txt"></span><button type="button" class="snack-deshacer">Deshacer</button><button type="button" class="snack-ver">Ver pedido</button>';
+  document.body.appendChild(snack);
+  var snackTimer = null, deshacer = null;
+  function avisa(txt, alDeshacer) {
+    $(".snack-txt", snack).textContent = txt; deshacer = alDeshacer;
+    snack.classList.add("on");
+    clearTimeout(snackTimer); snackTimer = setTimeout(function () { snack.classList.remove("on"); }, 4000);
+  }
+  snack.addEventListener("mouseenter", function () { clearTimeout(snackTimer); });
+  snack.addEventListener("mouseleave", function () { snackTimer = setTimeout(function () { snack.classList.remove("on"); }, 2000); });
+  $(".snack-deshacer", snack).addEventListener("click", function () { if (deshacer) deshacer(); snack.classList.remove("on"); });
+  $(".snack-ver", snack).addEventListener("click", function () { snack.classList.remove("on"); abrir(); });
+
+  /* Cambiar la cantidad de un producto (desde la tarjeta o desde el aviso) */
+  function datosDe(art) {
+    var h = art && art.querySelector("h3, h4"); if (!h) return null;
+    var pe = art.querySelector(".precio:not(.consultar)");
+    var precio = pe ? parseFloat(pe.textContent.replace(/[^\d,.]/g, "").replace(",", ".")) : null;
+    return { n: h.textContent.trim(), p: isNaN(precio) ? null : precio };
+  }
+  function cambia(d, delta, sinAviso) {
+    var it = carro.filter(function (x) { return x.n === d.n; })[0];
+    if (!it && delta > 0) { it = { n: d.n, p: d.p, q: 0 }; carro.push(it); }
+    if (!it) return;
+    it.q += delta;
+    if (it.q < 1) carro.splice(carro.indexOf(it), 1);
+    guardar(); pintaCarro();
+    if (sinAviso) return;
+    if (delta > 0) { bolsa.classList.remove("salta"); void bolsa.offsetWidth; bolsa.classList.add("salta"); avisa("Añadido a tu pedido: " + d.n, function () { cambia(d, -delta, true); }); }
+    else avisa("Quitado de tu pedido: " + d.n, function () { cambia(d, -delta, true); });
+  }
+
+  /* En cada tarjeta: si ya está en el pedido, «Añadir» se cambia por − cantidad + */
+  function syncTarjetas() {
+    $$("a.pedir").forEach(function (b) {
+      var art = b.closest("article"), d = datosDe(art); if (!d) return;
+      var it = carro.filter(function (x) { return x.n === d.n; })[0], q = it ? it.q : 0;
+      var mini = b.nextElementSibling && b.nextElementSibling.classList.contains("mini-cant") ? b.nextElementSibling : null;
+      if (q > 0) {
+        if (!mini) {
+          mini = document.createElement("span"); mini.className = "mini-cant" + (b.classList.contains("pedir-grande") ? " grande" : "");
+          mini.setAttribute("role", "group"); mini.setAttribute("aria-label", "Cantidad de " + d.n + " en tu pedido");
+          mini.innerHTML = '<button type="button" data-q="-1" aria-label="Quitar uno de ' + esc(d.n) + '">−</button><span class="mini-n"></span><button type="button" data-q="1" aria-label="Añadir otro de ' + esc(d.n) + '">+</button>';
+          b.insertAdjacentElement("afterend", mini);
+        }
+        $(".mini-n", mini).textContent = q + " en tu pedido";
+        b.hidden = true;
+      } else { if (mini) mini.remove(); b.hidden = false; }
+    });
+  }
+  var pintaBase = pintaCarro;
+  pintaCarro = function () { pintaBase(); syncTarjetas(); };
+  var marcaBase = window.__marcarPedir;
+  window.__marcarPedir = function () { marcaBase(); syncTarjetas(); };
+
   window.__marcarPedir();
   document.addEventListener("click", function (e) {
-    var b = e.target.closest && e.target.closest("a.pedir");
+    if (!e.target.closest) return;
+    var m = e.target.closest(".mini-cant button");
+    if (m) { var d0 = datosDe(m.closest("article")); if (d0) cambia(d0, +m.getAttribute("data-q")); return; }
+    var b = e.target.closest("a.pedir");
     if (!b) return;
-    var art = b.closest("article"), h = art && art.querySelector("h3, h4");
-    if (!h) return;
+    var d = datosDe(b.closest("article"));
+    if (!d) return;
     e.preventDefault();
-    var nombre = h.textContent.trim(), pe = art.querySelector(".precio:not(.consultar)");
-    var precio = pe ? parseFloat(pe.textContent.replace(/[^\d,.]/g, "").replace(",", ".")) : null;
-    if (isNaN(precio)) precio = null;
-    var it = carro.filter(function (x) { return x.n === nombre; })[0];
-    if (it) it.q++; else carro.push({ n: nombre, p: precio, q: 1 });
-    guardar(); pintaCarro();
-    b.classList.add("hecho"); b.textContent = "Añadido";
-    setTimeout(function () { b.classList.remove("hecho"); b.textContent = "Añadir"; }, 1400);
-    bolsa.classList.remove("salta"); void bolsa.offsetWidth; bolsa.classList.add("salta");
+    cambia(d, 1);
   });
   pintaCarro();
 })();
