@@ -366,3 +366,117 @@ a.feed-item:hover img{transform:scale(1.05)}
 /* Aviso que Adriana enciende desde su panel */
 .aviso{background:var(--tinta);color:#fff;text-align:center;padding:10px 20px;font-size:.92rem;font-weight:600;line-height:1.4}
 .aviso[hidden]{display:none}
+
+/* ===== Navidad (se quita con "navidad": "no" en config.json) ===== */
+
+/* Fondo de noche acogedor para que se vean los copos */
+body[data-navidad="si"]{background:#241E3B;color:#F4F0EA;--suave:#C9C4DD;--linea:rgba(255,255,255,.14)}
+body[data-navidad="si"] :is(.nav,.menu-panel,.prod,.dest,.crea-res,.resena,.vacio,.google,.dejar .form,.cita-in,.carro,.feed-card,.opc span,.campo input,.campo select,.campo textarea,.cesta){color:var(--tinta);--suave:#59627A;--linea:rgba(30,42,74,.12)}
+body[data-navidad="si"] .opc input:checked+span{color:#fff}
+body[data-navidad="si"] .cab p b{color:inherit;font-weight:700}
+body[data-navidad="si"] :is(.lleva span,.paso .n,.navidad .nueva){color:var(--claro)}
+body[data-navidad="si"] .chips{background:rgba(255,255,255,.1)}
+body[data-navidad="si"] .chips a:hover{background:rgba(255,255,255,.18)}
+body[data-navidad="si"] .gal-ctrl button{background:rgba(255,255,255,.12)}
+body[data-navidad="si"] .gal-ctrl button:hover{background:rgba(255,255,255,.22)}
+body[data-navidad="si"] .dejar[open]>summary{background:rgba(255,255,255,.12);color:#fff}
+body[data-navidad="si"] .faq-lista summary::after{background:linear-gradient(#F4F0EA,#F4F0EA) center/100% 1.8px no-repeat,linear-gradient(#F4F0EA,#F4F0EA) center/1.8px 100% no-repeat}
+body[data-navidad="si"] .feed-link .ver2{color:#fff;border-color:rgba(255,255,255,.6)}
+body[data-navidad="si"] .pie{background:#1A1530}
+
+/* Franja de la oferta: que se vea */
+.promo{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 14px;min-height:56px;padding:10px 20px;background:var(--acento);color:#fff;text-decoration:none;text-align:center;font-size:1rem;line-height:1.3}
+.promo::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;background:rgba(255,255,255,.22);transform:skewX(-20deg);animation:brillo 4.5s var(--ease) infinite}
+@keyframes brillo{0%,55%{left:-40%}100%{left:130%}}
+.promo-tag{background:#fff;color:var(--acento-os);font-weight:800;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:999px}
+.promo-txt b{font-family:var(--titulos);font-weight:700;font-size:1.12rem}
+.promo-btn{font-weight:700;border-bottom:2px solid rgba(255,255,255,.7);padding-bottom:1px}
+.promo:hover .promo-btn{border-bottom-color:#fff}
+
+/* Cestas: grandes y con fotos que se deslizan */
+.navidad .nueva{margin-bottom:10px;font-size:.9rem}
+.cestas-lista{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:36px}
+.cesta{display:flex;flex-direction:column;background:var(--tarjeta);border-radius:var(--radio);overflow:hidden;box-shadow:0 24px 50px -28px rgba(0,0,0,.6)}
+.carru{position:relative}
+.carru-pista{list-style:none;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;aspect-ratio:4/5;background:var(--lila)}
+.carru-pista::-webkit-scrollbar{display:none}
+.slide{flex:0 0 100%;scroll-snap-align:start;position:relative}
+.slide img,.slide video{width:100%;height:100%;object-fit:cover}
+.slide-txt{position:absolute;left:12px;right:12px;bottom:40px;color:#fff;font-weight:700;font-size:1.05rem;text-shadow:0 1px 10px rgba(0,0,0,.6)}
+.cinta{position:absolute;top:14px;left:14px;background:var(--tinta);color:#fff;font-weight:700;font-size:.8rem;padding:6px 12px;border-radius:999px}
+.desliza{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.9);color:var(--tinta);font-weight:600;font-size:.8rem;padding:6px 12px;border-radius:999px}
+.puntos{position:absolute;left:0;right:0;bottom:14px;display:flex;justify-content:center;gap:6px}
+.puntos i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 4px rgba(0,0,0,.3)}
+.puntos i.on{background:#fff;width:20px;border-radius:999px}
+.carru-flecha{display:none;position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.9);color:var(--tinta);font-size:1.5rem;line-height:1;cursor:pointer}
+.carru-flecha.atras{left:10px}.carru-flecha.alante{right:10px}
+@media (hover:hover){.js .carru-flecha{display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s var(--ease)}.js .carru:hover .carru-flecha{opacity:1}}
+.cesta-txt{display:flex;flex-direction:column;gap:10px;padding:20px 22px 22px;flex:1}
+.cesta h3{font-family:var(--titulos);font-weight:600;font-size:clamp(1.5rem,2.4vw,1.9rem);line-height:1.1;letter-spacing:-.02em}
+.cesta-txt p{color:var(--suave);font-size:.98rem;flex:1}
+.cesta-pie{display:grid;gap:10px;margin-top:6px}
+.cesta .pedir-grande{width:100%}
+.consultar{font-size:.95rem;color:var(--acento-os);font-weight:700}
+@media (max-width:900px){.cestas-lista{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.cestas-lista{grid-template-columns:1fr;gap:20px}.promo{font-size:.92rem}}
+@media (prefers-reduced-motion:reduce){.promo::after{display:none}}
+
+/* Copos de nieve: pequeños, por encima pero sin tapar ni bloquear nada */
+.nieve{position:fixed;top:0;right:0;bottom:0;left:0;pointer-events:none;z-index:45;overflow:hidden}
+.copo{position:absolute;top:-12px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(111,95,208,.22);opacity:.8;animation:copo var(--t,16s) linear var(--d,0s) infinite;will-change:transform}
+@keyframes copo{to{transform:translate3d(var(--x,20px),calc(100vh + 24px),0)}}
+@media (prefers-reduced-motion:reduce){.nieve{display:none}}
+
+/* Carrito (solo con JavaScript; sin él, cada «Pedir» abre WhatsApp como antes) */
+.bolsa{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:55;display:inline-flex;align-items:center;gap:10px;min-height:56px;padding:0 22px 0 18px;background:var(--tinta);color:#fff;border:0;border-radius:999px;font-weight:600;font-size:1rem;cursor:pointer;box-shadow:0 10px 30px -12px rgba(30,42,74,.6);transition:transform .2s var(--ease),background .2s var(--ease)}
+.bolsa[hidden]{display:none}
+.bolsa:hover{background:var(--acento)}
+.bolsa svg{width:22px;height:22px}
+.bolsa .num{min-width:24px;height:24px;padding:0 6px;border-radius:999px;background:var(--claro);color:var(--tinta);font-size:.85rem;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.bolsa.salta{animation:salta .4s var(--ease)}
+@keyframes salta{40%{transform:scale(1.08)}}
+.pedir.hecho{background:var(--tinta);color:#fff}
+.carro-fondo{position:fixed;top:0;right:0;bottom:0;left:0;z-index:60;background:rgba(20,28,52,.4)}
+.carro-fondo[hidden]{display:none}
+.carro{position:absolute;right:0;top:0;bottom:0;width:min(420px,100%);background:var(--fondo);display:flex;flex-direction:column;box-shadow:-20px 0 40px -20px rgba(20,28,52,.4);animation:entra .3s var(--ease)}
+@keyframes entra{from{transform:translateX(30px);opacity:0}}
+.carro-cab{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--linea)}
+.carro-cab h2{font-family:var(--titulos);font-weight:600;font-size:1.5rem;letter-spacing:-.02em}
+.carro-x{width:44px;height:44px;border:0;background:none;font-size:1.6rem;cursor:pointer;border-radius:50%}
+.carro-x:hover{background:rgba(30,42,74,.07)}
+.carro-lista{list-style:none;flex:1;overflow:auto;padding:8px 20px}
+.carro-lista li{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--linea)}
+.carro-lista .n{font-weight:600;line-height:1.3}
+.carro-lista .p{grid-column:1;color:var(--suave);font-size:.9rem;font-variant-numeric:tabular-nums}
+.cant{grid-row:1/3;grid-column:2;display:flex;align-items:center;gap:2px;background:rgba(30,42,74,.07);border-radius:999px;padding:2px}
+.cant button{width:40px;height:40px;border:0;background:none;border-radius:50%;font-size:1.2rem;font-weight:600;cursor:pointer}
+.cant button:hover{background:#fff}
+.cant span{min-width:22px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+.carro-pie{padding:16px 20px calc(20px + env(safe-area-inset-bottom));border-top:1px solid var(--linea);display:grid;gap:10px}
+.carro-total{display:flex;justify-content:space-between;font-weight:600;font-variant-numeric:tabular-nums}
+.carro-nota{color:var(--suave);font-size:.88rem}
+.carro-vaciar{justify-self:center;background:none;border:0;color:var(--suave);text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:40px;font-size:.9rem}
+.carro-vacio{padding:32px 0;color:var(--suave)}
+body.carro-abierto{overflow:hidden}
+body[data-navidad="si"] .opc input:checked+span{background:var(--acento)}
+body[data-navidad="si"] .bolsa{background:var(--acento);box-shadow:0 10px 30px -10px rgba(0,0,0,.7)}
+body[data-navidad="si"] .bolsa:hover{background:var(--acento-os)}
+/* Franja de oferta más grande (19 nov) */
+.promo{min-height:84px;padding:16px 24px;gap:10px 20px;font-size:1.15rem}
+.promo-tag{font-size:.9rem;padding:7px 14px}
+.promo-txt b{font-size:clamp(1.35rem,2.6vw,1.75rem)}
+.promo-btn{background:#fff;color:var(--acento-os);border:0;padding:10px 20px;border-radius:999px;font-size:1rem}
+.promo:hover .promo-btn{background:var(--lila)}
+@media (max-width:640px){.promo{min-height:120px;padding:16px;font-size:1.02rem}.promo-txt{flex-basis:100%}}
+/* Copos más visibles y trineo (19 nov) */
+.copo{box-shadow:0 0 6px rgba(255,255,255,.55),0 0 0 1px rgba(111,95,208,.25)}
+.trineo{position:fixed;left:0;top:0;width:clamp(170px,20vw,270px);pointer-events:none;z-index:44;will-change:transform;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}
+.trineo svg{display:block;width:100%;height:auto;overflow:visible}
+.trineo .pata-a,.trineo .pata-b{transform-box:fill-box;transform-origin:50% 0;animation:galope .45s ease-in-out infinite alternate}
+.trineo .pata-b{animation-delay:-.22s}
+@keyframes galope{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+.trineo .estela circle{fill:#F5D27A;animation:chispa 1.2s ease-in-out infinite alternate}
+.trineo .estela circle:nth-child(2){animation-delay:-.4s}.trineo .estela circle:nth-child(3){animation-delay:-.8s}
+@keyframes chispa{from{opacity:.2}to{opacity:1}}
+
+@media (prefers-reduced-motion:reduce){.trineo{display:none}}
